@@ -1,0 +1,6 @@
+{
+  "name": "Proxy Bazar",
+  "description": "Secure, high-speed digital marketplace for premium residential, ISP, and datacenter proxies and digital services with instant deposit and automated delivery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

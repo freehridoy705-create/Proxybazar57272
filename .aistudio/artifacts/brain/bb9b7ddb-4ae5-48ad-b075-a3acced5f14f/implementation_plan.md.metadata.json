@@ -1,0 +1,6 @@
+{
+  "summary":  "Implementation plan for adding a duration category toggle filter ('Short-term', 'Medium-term', 'Long-term', 'All') to ProxyBuyPage, including category mapping, segmented control UX, and bilingual support.",
+  "updatedAt":  "2026-10-21T15:32:24.739788787Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

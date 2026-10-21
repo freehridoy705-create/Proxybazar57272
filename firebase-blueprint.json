@@ -1,0 +1,202 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with balance, account metadata, and role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "userId": { "type": "string", "description": "Human-friendly unique ID, e.g. PB-10492" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "Access level" },
+        "balance": { "type": "number", "description": "Available balance in USD" },
+        "totalDeposited": { "type": "number", "description": "Lifetime total deposited USD" },
+        "totalPurchased": { "type": "number", "description": "Lifetime total spent USD" },
+        "status": { "type": "string", "enum": ["active", "suspended"], "description": "Account status" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of registration" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      },
+      "required": ["uid", "userId", "email", "role", "balance", "status", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Configurable digital product or proxy service package",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Product name" },
+        "category": { "type": "string", "enum": ["proxy_time", "proxy_residential", "proxy_datacenter", "proxy_isp", "digital_service"], "description": "Category" },
+        "duration": { "type": "string", "description": "Validity or usage duration" },
+        "price": { "type": "number", "description": "Price in USD" },
+        "description": { "type": "string", "description": "Product details" },
+        "features": { "type": "array", "description": "List of key features" },
+        "active": { "type": "boolean", "description": "Is available for purchase" },
+        "stock": { "type": "number", "description": "Available stock count" },
+        "sortOrder": { "type": "number", "description": "Display order" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["title", "category", "price", "active"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Purchase order for proxy or digital goods",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Customer UID" },
+        "userEmail": { "type": "string", "description": "Customer Email" },
+        "userFriendlyId": { "type": "string", "description": "Friendly customer ID" },
+        "productId": { "type": "string", "description": "Product reference ID" },
+        "productName": { "type": "string", "description": "Product title at time of order" },
+        "category": { "type": "string", "description": "Product category" },
+        "duration": { "type": "string", "description": "Duration bought" },
+        "amount": { "type": "number", "description": "Amount paid in USD" },
+        "status": { "type": "string", "enum": ["pending", "completed", "cancelled", "refunded"], "description": "Fulfillment status" },
+        "idempotencyKey": { "type": "string", "description": "Unique key preventing duplicate purchases" },
+        "proxyAssignmentId": { "type": "string", "description": "Linked proxy credentials document ID" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "assignedAt": { "type": "string", "description": "When credentials were provided" }
+      },
+      "required": ["userId", "productName", "amount", "status", "idempotencyKey", "createdAt"]
+    },
+    "Deposit": {
+      "title": "Deposit",
+      "description": "Manual USDT BEP20 deposit request",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Customer UID" },
+        "userEmail": { "type": "string", "description": "Customer email" },
+        "userFriendlyId": { "type": "string", "description": "Friendly customer ID" },
+        "amount": { "type": "number", "description": "USDT deposit amount" },
+        "network": { "type": "string", "enum": ["USDT_BEP20"], "description": "Blockchain network" },
+        "txHash": { "type": "string", "description": "Transaction Hash (TxID) on BSC" },
+        "depositAddress": { "type": "string", "description": "Admin wallet address deposited to" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "Verification status" },
+        "adminNotes": { "type": "string", "description": "Admin approval or rejection remarks" },
+        "reviewedBy": { "type": "string", "description": "Admin email who verified" },
+        "reviewedAt": { "type": "string", "description": "Review timestamp" },
+        "createdAt": { "type": "string", "description": "Submission timestamp" }
+      },
+      "required": ["userId", "amount", "network", "txHash", "status", "createdAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Immutable balance ledger record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Customer UID" },
+        "type": { "type": "string", "enum": ["deposit", "purchase", "refund", "adjustment"], "description": "Ledger entry type" },
+        "amount": { "type": "number", "description": "Delta amount (+ for credit, - for debit)" },
+        "balanceBefore": { "type": "number", "description": "Balance prior to event" },
+        "balanceAfter": { "type": "number", "description": "Balance after event" },
+        "referenceId": { "type": "string", "description": "Related orderId or depositId" },
+        "description": { "type": "string", "description": "Human explanation" },
+        "createdAt": { "type": "string", "description": "Ledger timestamp" }
+      },
+      "required": ["userId", "type", "amount", "balanceBefore", "balanceAfter", "createdAt"]
+    },
+    "ProxyAssignment": {
+      "title": "ProxyAssignment",
+      "description": "Private proxy connection credentials assigned to a user",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "description": "Related order ID" },
+        "userId": { "type": "string", "description": "Assigned customer UID" },
+        "userEmail": { "type": "string", "description": "Customer email" },
+        "host": { "type": "string", "description": "Proxy IP or domain" },
+        "port": { "type": "number", "description": "Port number" },
+        "username": { "type": "string", "description": "Auth username" },
+        "password": { "type": "string", "description": "Auth password" },
+        "protocol": { "type": "string", "enum": ["HTTP", "HTTPS", "SOCKS5"], "description": "Proxy protocol" },
+        "packageDuration": { "type": "string", "description": "Package duration" },
+        "purchaseDate": { "type": "string", "description": "Order creation date" },
+        "expiresAt": { "type": "string", "description": "Proxy expiration date" },
+        "status": { "type": "string", "enum": ["active", "expired", "revoked"], "description": "Assignment status" },
+        "notes": { "type": "string", "description": "Usage guide or note" },
+        "createdAt": { "type": "string", "description": "Timestamp created" }
+      },
+      "required": ["orderId", "userId", "host", "port", "username", "password", "status", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "System or order notification for a user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Recipient UID or 'all'" },
+        "title": { "type": "string", "description": "Notification headline" },
+        "message": { "type": "string", "description": "Detailed text" },
+        "type": { "type": "string", "enum": ["order", "deposit", "proxy", "system"], "description": "Category" },
+        "link": { "type": "string", "description": "Optional navigation path" },
+        "isRead": { "type": "boolean", "description": "Read status" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["userId", "title", "message", "type", "createdAt"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "usdtBep20Address": { "type": "string", "description": "Admin USDT BEP20 BSC wallet address" },
+        "minDepositUsdt": { "type": "number", "description": "Minimum deposit threshold in USD" },
+        "supportTelegram": { "type": "string", "description": "Support Telegram link or handle" },
+        "noticeBanner": { "type": "string", "description": "Global user announcement notice" },
+        "updatedAt": { "type": "string", "description": "Last configuration update" },
+        "updatedBy": { "type": "string", "description": "Admin UID who saved changes" }
+      },
+      "required": ["usdtBep20Address", "minDepositUsdt", "supportTelegram"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Administrative action records for audit trail",
+      "type": "object",
+      "properties": {
+        "adminEmail": { "type": "string", "description": "Admin email who performed action" },
+        "adminUid": { "type": "string", "description": "Admin UID" },
+        "action": { "type": "string", "description": "Action performed, e.g. APPROVE_DEPOSIT, ASSIGN_PROXY" },
+        "targetType": { "type": "string", "description": "Target entity, e.g. deposit, order, user" },
+        "targetId": { "type": "string", "description": "Target doc ID" },
+        "details": { "type": "string", "description": "JSON string or note" },
+        "createdAt": { "type": "string", "description": "Timestamp" }
+      },
+      "required": ["adminEmail", "action", "targetType", "targetId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User account and profile data"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "Product" },
+      "description": "Catalog of proxy packages and digital goods"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "Order" },
+      "description": "Customer purchase orders"
+    },
+    "/deposits/{depositId}": {
+      "schema": { "$ref": "Deposit" },
+      "description": "USDT BEP20 manual deposit requests"
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "Transaction" },
+      "description": "Immutable balance audit ledger"
+    },
+    "/proxyAssignments/{assignmentId}": {
+      "schema": { "$ref": "ProxyAssignment" },
+      "description": "Confidential proxy credentials for fulfilled orders"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "Notification" },
+      "description": "Alerts and messages dispatched to users"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "Setting" },
+      "description": "Platform settings including wallet address and support link"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "AuditLog" },
+      "description": "Security audit records for administrative events"
+    }
+  }
+}
